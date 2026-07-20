@@ -61,9 +61,24 @@
     <div class="chip" data-val="Emiliano">Emiliano</div>
   </div>
 
-  <label for="dipendente">Dipendente</label>
+  <div class="riga">
+    <div>
+      <label for="nomeManuale">Dipendente</label>
+      <input id="nomeManuale" placeholder="COGNOME Nome" autocomplete="off">
+    </div>
+    <div>
+      <label for="sedeManuale">Sede</label>
+      <select id="sedeManuale">
+        <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
+        <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
+        <option>Pontedera</option><option>Empoli</option><option>Trasporti</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="dipendente">Oppure scegli dall'elenco (Area Nord)</label>
   <select id="dipendente">
-    <option value="">— seleziona —</option>
+    <option value="">— compila i campi qui sopra a mano —</option>
     <optgroup label="Sarzana">
       <option value="SECCO Luca|Sarzana">Secco Luca — magazzino</option>
       <option value="CAITI Marco|Sarzana">Caiti Marco — banco</option>
@@ -94,27 +109,8 @@
       <option value="BRAHIMAJ Luli|Trasporti">Brahimaj Luli — autista Area Nord</option>
       <option value="MONGILI Franco|Trasporti">Mongili Franco — corriere Nord+Sud</option>
     </optgroup>
-    <optgroup label="Altro">
-      <option value="__altro__|">Altro (inserisci manualmente)</option>
-    </optgroup>
   </select>
-
-  <div id="boxAltro" style="display:none">
-    <div class="riga">
-      <div>
-        <label for="nomeManuale">Nome e cognome</label>
-        <input id="nomeManuale" placeholder="ROSSI Mario">
-      </div>
-      <div>
-        <label for="sedeManuale">Sede</label>
-        <select id="sedeManuale">
-          <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
-          <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
-          <option>Pontedera</option><option>Empoli</option><option>Trasporti</option>
-        </select>
-      </div>
-    </div>
-  </div>
+  <div class="hint">L'elenco contiene per ora solo l'Area Nord. Per le altre sedi scrivi il nome a mano: verrà inserito allo stesso modo.</div>
 
   <label>Tipo di assenza</label>
   <div class="chips" id="chipsTipo">
@@ -185,7 +181,7 @@
    CONFIGURAZIONE — incolla qui l'URL della Web App Apps Script
    (Distribuisci → Nuova distribuzione → App web → Chiunque)
    ============================================================ */
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxb1CU_gXPCpgylFGkJcLhaFd3qS3WZTqa0qxtPlaO2I173PN8DZuVpIyiB0lUaY_fDuQ/exec";
+const URL_SCRIPT = "INCOLLA_QUI_URL_APPS_SCRIPT";
 /* ============================================================ */
 
 const $ = id => document.getElementById(id);
@@ -220,8 +216,15 @@ function setModo(m){
   $("boxOra").style.display    = m === "ora"    ? "" : "none";
 }
 
+// scegliendo dall'elenco, i campi manuali si compilano da soli
 $("dipendente").addEventListener("change", () => {
-  $("boxAltro").style.display = $("dipendente").value.startsWith("__altro__") ? "" : "none";
+  const v = $("dipendente").value;
+  if (v) {
+    const [nome, sede] = v.split("|");
+    $("nomeManuale").value = nome;
+    $("sedeManuale").value = sede;
+    $("dipendente").selectedIndex = 0; // torna neutro: il dato vive nei campi sopra
+  }
   aggiorna();
 });
 ["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale"]
@@ -233,16 +236,9 @@ $("dataInizio").addEventListener("change", () => {
 });
 
 function datiForm(){
-  const v = $("dipendente").value;
-  if(!v) return null;
-  let nome, sede;
-  if (v.startsWith("__altro__")) {
-    nome = ($("nomeManuale").value || "").trim();
-    sede = $("sedeManuale").value;
-    if(!nome) return null;
-  } else {
-    [nome, sede] = v.split("|");
-  }
+  const nome = ($("nomeManuale").value || "").trim();
+  const sede = $("sedeManuale").value;
+  if(!nome) return null;
   const d = { nome, sede, tipo: stato.tipo, modo: stato.modo,
               note: $("note").value.trim(), operatore: stato.operatore };
   d.titolo = nome + " – " + sede + " – " + stato.tipo;
