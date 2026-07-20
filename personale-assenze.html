@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lo.Com — Inserimento Ferie e Permessi</title>
+<style>
+  :root{
+    --arancio:#F2780A; --arancio-scuro:#C85F00;
+    --rosso:#D93025; --verde:#1E8E3E;
+    --grigio:#5F6368; --bordo:#DADCE0; --sfondo:#F5F6F8;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--sfondo);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#202124}
+  .wrap{max-width:720px;margin:0 auto;padding:16px}
+  header{background:var(--arancio);color:#fff;padding:18px 20px;border-radius:12px;margin-bottom:16px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;font-size:13px;opacity:.9}
+  .card{background:#fff;border:1px solid var(--bordo);border-radius:12px;padding:18px;margin-bottom:14px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--grigio);margin:14px 0 6px}
+  label:first-child{margin-top:0}
+  input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--bordo);border-radius:8px;font-family:inherit;background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--arancio);outline-offset:-1px;border-color:var(--arancio)}
+  textarea{min-height:70px;resize:vertical}
+  .riga{display:flex;gap:12px}
+  .riga>div{flex:1}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{padding:9px 14px;border:1px solid var(--bordo);border-radius:20px;background:#fff;font-size:14px;cursor:pointer;user-select:none}
+  .chip.on{background:var(--arancio);border-color:var(--arancio);color:#fff;font-weight:600}
+  .hint{font-size:12px;color:var(--grigio);margin-top:6px;line-height:1.4}
+  .anteprima{background:#FFF4E8;border:1px solid #F5C99A;border-radius:8px;padding:12px;font-size:14px;line-height:1.6}
+  .anteprima b{color:var(--arancio-scuro)}
+  button.invia{width:100%;padding:15px;font-size:16px;font-weight:700;color:#fff;background:var(--arancio);border:0;border-radius:10px;cursor:pointer;margin-top:6px}
+  button.invia:disabled{background:#BDC1C6;cursor:not-allowed}
+  .esito{padding:12px;border-radius:8px;font-size:14px;margin-top:12px;display:none}
+  .esito.ok{display:block;background:#E6F4EA;color:#137333;border:1px solid #A8DAB5}
+  .esito.ko{display:block;background:#FCE8E6;color:#C5221F;border:1px solid #F5B5B0}
+  .storico{font-size:13px;color:var(--grigio)}
+  .storico div{padding:6px 0;border-bottom:1px solid var(--bordo)}
+  .storico div:last-child{border:0}
+  h3{font-size:14px;margin:0 0 10px;color:var(--grigio);text-transform:uppercase;letter-spacing:.5px}
+  .avviso{background:#FEF7E0;border:1px solid #FDD663;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Ferie, Permessi e Assenze</h1>
+  <p>Lo.Com — Area Nord · calendario GESTIONE DEL PERSONALE</p>
+</header>
+
+<div id="avvisoConfig" class="avviso" style="display:none">
+  ⚙️ <b>Configurazione mancante:</b> apri il file e inserisci l'URL della Web App di Apps Script nella costante <code>URL_SCRIPT</code> in fondo alla pagina.
+</div>
+
+<div class="card">
+  <label for="operatore">Inserito da</label>
+  <div class="chips" id="chipsOperatore">
+    <div class="chip on" data-val="Fabrizio">Fabrizio</div>
+    <div class="chip" data-val="Emiliano">Emiliano</div>
+  </div>
+
+  <label for="dipendente">Dipendente</label>
+  <select id="dipendente">
+    <option value="">— seleziona —</option>
+    <optgroup label="Sarzana">
+      <option value="SECCO Luca|Sarzana">Secco Luca — magazzino</option>
+      <option value="CAITI Marco|Sarzana">Caiti Marco — banco</option>
+      <option value="CAGLIERI Riccardo|Sarzana">Caglieri Riccardo — magazzino</option>
+      <option value="BENASSI Jacopo|Sarzana">Benassi Jacopo — Jolly Area Nord</option>
+      <option value="LOMBARDO Armando|Sarzana">Lombardo Armando — manutentore</option>
+      <option value="MARCHESE Andrea|Sarzana">Marchese Andrea — manutentore</option>
+    </optgroup>
+    <optgroup label="La Spezia">
+      <option value="TAOUSSI Anas|La Spezia">Taoussi Anas — banco</option>
+      <option value="RUSSO Domenico|La Spezia">Russo Domenico — magazzino</option>
+      <option value="TADDEI Alessandro|La Spezia">Taddei Alessandro — manutentore</option>
+      <option value="KOULIBALY|La Spezia">Koulibaly — manutentore</option>
+    </optgroup>
+    <optgroup label="Massa">
+      <option value="CHINI Stefano|Massa">Chini Stefano — banco</option>
+      <option value="MATA Massimiliano|Massa">Mata Massimiliano — magazzino</option>
+      <option value="D'AQUINO Elettra|Massa">D'Aquino Elettra — magazzino</option>
+      <option value="GALLI Gianluca|Massa">Galli Gianluca — manutentore</option>
+    </optgroup>
+    <optgroup label="Viareggio">
+      <option value="APREA Domenico|Viareggio">Aprea Domenico — banco</option>
+      <option value="TOFANELLI Matteo|Viareggio">Tofanelli Matteo — banco</option>
+      <option value="CAIEZZA Alessandro|Viareggio">Caiezza Alessandro — magazzino</option>
+      <option value="SICHI Alessandro|Viareggio">Sichi Alessandro — autista</option>
+    </optgroup>
+    <optgroup label="Trasporti dedicati">
+      <option value="BRAHIMAJ Luli|Trasporti">Brahimaj Luli — autista Area Nord</option>
+      <option value="MONGILI Franco|Trasporti">Mongili Franco — corriere Nord+Sud</option>
+    </optgroup>
+    <optgroup label="Altro">
+      <option value="__altro__|">Altro (inserisci manualmente)</option>
+    </optgroup>
+  </select>
+
+  <div id="boxAltro" style="display:none">
+    <div class="riga">
+      <div>
+        <label for="nomeManuale">Nome e cognome</label>
+        <input id="nomeManuale" placeholder="ROSSI Mario">
+      </div>
+      <div>
+        <label for="sedeManuale">Sede</label>
+        <select id="sedeManuale">
+          <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
+          <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
+          <option>Pontedera</option><option>Empoli</option><option>Trasporti</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <label>Tipo di assenza</label>
+  <div class="chips" id="chipsTipo">
+    <div class="chip on" data-val="Ferie" data-modo="giorno">Ferie</div>
+    <div class="chip" data-val="Permesso" data-modo="ora">Permesso</div>
+    <div class="chip" data-val="Permesso ROL" data-modo="ora">ROL</div>
+    <div class="chip" data-val="Malattia" data-modo="giorno">Malattia</div>
+    <div class="chip" data-val="Congedo" data-modo="giorno">Congedo</div>
+    <div class="chip" data-val="Legge 104" data-modo="giorno">L. 104</div>
+    <div class="chip" data-val="Recupero ore" data-modo="ora">Recupero ore</div>
+  </div>
+
+  <label>Durata</label>
+  <div class="chips" id="chipsModo">
+    <div class="chip on" data-val="giorno">Giornata intera / più giorni</div>
+    <div class="chip" data-val="ora">A ore</div>
+  </div>
+  <div class="hint">Ferie, malattia e congedi sono giornalieri. I permessi vengono inseriti nella fascia oraria richiesta.</div>
+
+  <div id="boxGiorno">
+    <div class="riga">
+      <div>
+        <label for="dataInizio">Dal giorno</label>
+        <input type="date" id="dataInizio">
+      </div>
+      <div>
+        <label for="dataFine">Al giorno (incluso)</label>
+        <input type="date" id="dataFine">
+      </div>
+    </div>
+  </div>
+
+  <div id="boxOra" style="display:none">
+    <label for="dataOra">Giorno</label>
+    <input type="date" id="dataOra">
+    <div class="riga">
+      <div>
+        <label for="oraInizio">Dalle</label>
+        <input type="time" id="oraInizio" value="08:00" step="900">
+      </div>
+      <div>
+        <label for="oraFine">Alle</label>
+        <input type="time" id="oraFine" value="10:00" step="900">
+      </div>
+    </div>
+  </div>
+
+  <label for="note">Note (facoltative)</label>
+  <textarea id="note" placeholder="es. approvato il 20/07/2026 — sostituito da Benassi"></textarea>
+</div>
+
+<div class="card">
+  <h3>Anteprima evento</h3>
+  <div class="anteprima" id="anteprima">—</div>
+  <button class="invia" id="btnInvia">Inserisci nel calendario</button>
+  <div class="esito" id="esito"></div>
+</div>
+
+<div class="card">
+  <h3>Inserimenti di questa sessione</h3>
+  <div class="storico" id="storico"><div>Nessun inserimento.</div></div>
+</div>
+
+</div>
+
+<script>
+/* ============================================================
+   CONFIGURAZIONE — incolla qui l'URL della Web App Apps Script
+   (Distribuisci → Nuova distribuzione → App web → Chiunque)
+   ============================================================ */
+const URL_SCRIPT = https://script.google.com/macros/s/AKfycbxb1CU_gXPCpgylFGkJcLhaFd3qS3WZTqa0qxtPlaO2I173PN8DZuVpIyiB0lUaY_fDuQ/exec;
+/* ============================================================ */
+
+const $ = id => document.getElementById(id);
+const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", inseriti:[] };
+
+if (URL_SCRIPT.indexOf("http") !== 0) $("avvisoConfig").style.display = "block";
+
+// data di oggi come default
+const oggi = new Date().toISOString().slice(0,10);
+["dataInizio","dataFine","dataOra"].forEach(id => $(id).value = oggi);
+
+// gestione chip generica
+function chipGroup(contenitore, onPick){
+  $(contenitore).addEventListener("click", e => {
+    const c = e.target.closest(".chip"); if(!c) return;
+    [...$(contenitore).children].forEach(x => x.classList.remove("on"));
+    c.classList.add("on"); onPick(c); aggiorna();
+  });
+}
+chipGroup("chipsOperatore", c => stato.operatore = c.dataset.val);
+chipGroup("chipsTipo", c => {
+  stato.tipo = c.dataset.val;
+  // il tipo suggerisce la durata, ma resta modificabile
+  setModo(c.dataset.modo);
+});
+chipGroup("chipsModo", c => setModo(c.dataset.val));
+
+function setModo(m){
+  stato.modo = m;
+  [...$("chipsModo").children].forEach(x => x.classList.toggle("on", x.dataset.val === m));
+  $("boxGiorno").style.display = m === "giorno" ? "" : "none";
+  $("boxOra").style.display    = m === "ora"    ? "" : "none";
+}
+
+$("dipendente").addEventListener("change", () => {
+  $("boxAltro").style.display = $("dipendente").value.startsWith("__altro__") ? "" : "none";
+  aggiorna();
+});
+["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale"]
+  .forEach(id => $(id).addEventListener("input", aggiorna));
+
+$("dataInizio").addEventListener("change", () => {
+  if ($("dataFine").value < $("dataInizio").value) $("dataFine").value = $("dataInizio").value;
+  aggiorna();
+});
+
+function datiForm(){
+  const v = $("dipendente").value;
+  if(!v) return null;
+  let nome, sede;
+  if (v.startsWith("__altro__")) {
+    nome = ($("nomeManuale").value || "").trim();
+    sede = $("sedeManuale").value;
+    if(!nome) return null;
+  } else {
+    [nome, sede] = v.split("|");
+  }
+  const d = { nome, sede, tipo: stato.tipo, modo: stato.modo,
+              note: $("note").value.trim(), operatore: stato.operatore };
+  d.titolo = nome + " – " + sede + " – " + stato.tipo;
+  if (stato.modo === "giorno") {
+    d.dataInizio = $("dataInizio").value;
+    d.dataFine   = $("dataFine").value || $("dataInizio").value;
+    if(!d.dataInizio) return null;
+    const g = Math.round((new Date(d.dataFine) - new Date(d.dataInizio))/86400000) + 1;
+    d.giorni = g;
+  } else {
+    d.data = $("dataOra").value;
+    d.oraInizio = $("oraInizio").value;
+    d.oraFine   = $("oraFine").value;
+    if(!d.data || !d.oraInizio || !d.oraFine) return null;
+    if (d.oraFine <= d.oraInizio) return null;
+    const m = (h => (+h.split(":")[0])*60 + (+h.split(":")[1]));
+    d.ore = ((m(d.oraFine)-m(d.oraInizio))/60).toFixed(2).replace(/\.00$/,"");
+  }
+  return d;
+}
+
+function itDate(s){ const [a,m,g]=s.split("-"); return g+"/"+m+"/"+a; }
+
+function aggiorna(){
+  const d = datiForm();
+  const btn = $("btnInvia");
+  if(!d){ $("anteprima").innerHTML = "Completa i campi obbligatori."; btn.disabled = true; return; }
+  btn.disabled = false;
+  let quando;
+  if (d.modo === "giorno") {
+    quando = d.dataInizio === d.dataFine
+      ? itDate(d.dataInizio) + " — tutto il giorno"
+      : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) + " (" + d.giorni + " giorni)";
+  } else {
+    quando = itDate(d.data) + " — dalle " + d.oraInizio + " alle " + d.oraFine + " (" + d.ore + " ore)";
+  }
+  $("anteprima").innerHTML =
+    "<b>" + d.titolo + "</b><br>" + quando +
+    "<br>Colore: <span style='color:#D93025'>● rosso</span> · calendario Gestione Personale" +
+    (d.note ? "<br>Note: " + d.note : "") +
+    "<br><span style='color:#5F6368;font-size:12px'>Inserito da " + d.operatore + "</span>";
+}
+
+$("btnInvia").addEventListener("click", async () => {
+  const d = datiForm(); if(!d) return;
+  const btn = $("btnInvia"), esito = $("esito");
+  if (URL_SCRIPT.indexOf("http") !== 0){
+    esito.className = "esito ko";
+    esito.textContent = "URL della Web App non configurato.";
+    return;
+  }
+  btn.disabled = true; btn.textContent = "Invio in corso…"; esito.className = "esito";
+  try{
+    const r = await fetch(URL_SCRIPT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita il preflight CORS
+      body: JSON.stringify(d)
+    });
+    const out = await r.json();
+    if (out.ok){
+      esito.className = "esito ok";
+      esito.textContent = "✅ Evento creato: " + d.titolo;
+      const riga = document.createElement("div");
+      riga.textContent = new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
+        + " — " + d.titolo;
+      if ($("storico").firstChild && $("storico").firstChild.textContent === "Nessun inserimento.")
+        $("storico").innerHTML = "";
+      $("storico").prepend(riga);
+      $("note").value = "";
+      aggiorna();
+    } else {
+      esito.className = "esito ko";
+      esito.textContent = "❌ Errore: " + (out.errore || "sconosciuto");
+    }
+  } catch(err){
+    esito.className = "esito ko";
+    esito.textContent = "❌ Errore di rete o autorizzazione: " + err.message;
+  }
+  btn.disabled = false; btn.textContent = "Inserisci nel calendario";
+});
+
+aggiorna();
+</script>
+</body>
+</html>
