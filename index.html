@@ -47,11 +47,11 @@
 
 <header>
   <h1>Ferie, Permessi e Assenze</h1>
-  <p>Lo.Com — Area Nord · calendario GESTIONE DEL PERSONALE</p>
+  <p>Lo.Com · compila e premi il pulsante: Google Calendar si apre già pronto</p>
 </header>
 
 <div id="avvisoConfig" class="avviso" style="display:none">
-  ⚙️ <b>Configurazione mancante:</b> apri il file e inserisci l'URL della Web App di Apps Script nella costante <code>URL_SCRIPT</code> in fondo alla pagina.
+  ⚙️ ID calendario non impostato: gli eventi si apriranno sul calendario predefinito dell'account con cui sei connesso.
 </div>
 
 <div class="card">
@@ -165,7 +165,7 @@
 <div class="card">
   <h3>Anteprima evento</h3>
   <div class="anteprima" id="anteprima">—</div>
-  <button class="invia" id="btnInvia">Inserisci nel calendario</button>
+  <button class="invia" id="btnInvia">Apri in Google Calendar</button>
   <div class="esito" id="esito"></div>
 </div>
 
@@ -178,16 +178,19 @@
 
 <script>
 /* ============================================================
-   CONFIGURAZIONE — incolla qui l'URL della Web App Apps Script
-   (Distribuisci → Nuova distribuzione → App web → Chiunque)
+   CONFIGURAZIONE
+   ID del calendario su cui inserire le assenze.
+   Se lasci vuoto, si apre il calendario predefinito dell'account.
+   Lo trovi in: Google Calendar > Impostazioni del calendario
+                > Integra il calendario > ID calendario
    ============================================================ */
-const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbxb1CU_gXPCpgylFGkJcLhaFd3qS3WZTqa0qxtPlaO2I173PN8DZuVpIyiB0lUaY_fDuQ/exec";
-/* =========================================================== */
+const CAL_ID = "gestionepersonalelocom@gmail.com";
+/* ============================================================ */
 
 const $ = id => document.getElementById(id);
 const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", inseriti:[] };
 
-if (URL_SCRIPT.indexOf("http") !== 0) $("avvisoConfig").style.display = "block";
+if (!CAL_ID) $("avvisoConfig").style.display = "block";
 
 // data di oggi come default
 const oggi = new Date().toISOString().slice(0,10);
@@ -277,47 +280,62 @@ function aggiorna(){
   }
   $("anteprima").innerHTML =
     "<b>" + d.titolo + "</b><br>" + quando +
-    "<br>Colore: <span style='color:#D93025'>● rosso</span> · calendario Gestione Personale" +
+    "<br>Calendario GESTIONE DEL PERSONALE" +
     (d.note ? "<br>Note: " + d.note : "") +
     "<br><span style='color:#5F6368;font-size:12px'>Inserito da " + d.operatore + "</span>";
 }
 
-$("btnInvia").addEventListener("click", async () => {
+/* ---------------------------------------------------------------
+   INVIO — apre Google Calendar con l'evento gia' compilato.
+   Nessuna autorizzazione, nessuno script, nessun URL da configurare.
+   --------------------------------------------------------------- */
+
+function soloCifre(s){ return s.replace(/-/g, ""); }
+
+function linkCalendario(d){
+  let dates;
+  if (d.modo === "giorno"){
+    const fine = new Date(d.dataFine + "T00:00:00");
+    fine.setDate(fine.getDate() + 1);            // Google usa la fine esclusiva
+    const fineStr = fine.getFullYear() +
+      String(fine.getMonth()+1).padStart(2,"0") +
+      String(fine.getDate()).padStart(2,"0");
+    dates = soloCifre(d.dataInizio) + "/" + fineStr;
+  } else {
+    const g = soloCifre(d.data);
+    dates = g + "T" + d.oraInizio.replace(":","") + "00/" +
+            g + "T" + d.oraFine.replace(":","")   + "00";
+  }
+
+  let dettagli = "";
+  if (d.note) dettagli += d.note + "\n";
+  dettagli += "Inserito da " + d.operatore;
+
+  let url = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text="    + encodeURIComponent(d.titolo) +
+    "&dates="   + dates +
+    "&details=" + encodeURIComponent(dettagli) +
+    "&ctz=Europe/Rome";
+  if (CAL_ID) url += "&src=" + encodeURIComponent(CAL_ID);
+  return url;
+}
+
+$("btnInvia").addEventListener("click", () => {
   const d = datiForm(); if(!d) return;
-  const btn = $("btnInvia"), esito = $("esito");
-  if (URL_SCRIPT.indexOf("http") !== 0){
-    esito.className = "esito ko";
-    esito.textContent = "URL della Web App non configurato.";
-    return;
-  }
-  btn.disabled = true; btn.textContent = "Invio in corso…"; esito.className = "esito";
-  try{
-    const r = await fetch(URL_SCRIPT, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita il preflight CORS
-      body: JSON.stringify(d)
-    });
-    const out = await r.json();
-    if (out.ok){
-      esito.className = "esito ok";
-      esito.textContent = "✅ Evento creato: " + d.titolo;
-      const riga = document.createElement("div");
-      riga.textContent = new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
-        + " — " + d.titolo;
-      if ($("storico").firstChild && $("storico").firstChild.textContent === "Nessun inserimento.")
-        $("storico").innerHTML = "";
-      $("storico").prepend(riga);
-      $("note").value = "";
-      aggiorna();
-    } else {
-      esito.className = "esito ko";
-      esito.textContent = "❌ Errore: " + (out.errore || "sconosciuto");
-    }
-  } catch(err){
-    esito.className = "esito ko";
-    esito.textContent = "❌ Errore di rete o autorizzazione: " + err.message;
-  }
-  btn.disabled = false; btn.textContent = "Inserisci nel calendario";
+  window.open(linkCalendario(d), "_blank");
+
+  $("esito").className = "esito ok";
+  $("esito").innerHTML = "\u2192 Google Calendar si e' aperto in una nuova scheda.<br>" +
+    "<b>Premi SALVA</b> per confermare l'inserimento.";
+
+  const riga = document.createElement("div");
+  riga.textContent = new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
+    + " \u2014 " + d.titolo;
+  if ($("storico").firstChild && $("storico").firstChild.textContent === "Nessun inserimento.")
+    $("storico").innerHTML = "";
+  $("storico").prepend(riga);
+  $("note").value = "";
+  aggiorna();
 });
 
 aggiorna();
