@@ -195,6 +195,10 @@
     <button class="secondaria" id="btnMail">📧 Email alla sede</button>
     <button class="secondaria" id="btnWa">💬 WhatsApp</button>
   </div>
+  <label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:12px;cursor:pointer">
+    <input type="checkbox" id="ccOfficina" style="width:auto;margin:0">
+    Metti in copia anche l'officina della sede
+  </label>
   <div class="hint">Comunicano l'autorizzazione alla sede. Il messaggio è già compilato: controlla e invia.</div>
   <div class="esito" id="esito"></div>
 </div>
@@ -216,16 +220,15 @@ const CAL_ID = "gestionepersonalelocom@gmail.com";
    senza + e senza spazi (es. 393331234567). Se un numero manca,
    WhatsApp si apre lasciandoti scegliere il contatto a mano. */
 const SEDI = {
-  "Sarzana":    { mail: "italnolosarzana@gmail.com",   wa: "" },
-  "La Spezia":  { mail: "italnololaspezia@gmail.com",  wa: "" },
-  "Massa":      { mail: "italnolomassa@gmail.com",     wa: "" },
-  "Viareggio":  { mail: "italnoloviareggio@gmail.com", wa: "" },
-  "Pisa":       { mail: "italnolopisa@gmail.com",      wa: "" },
-  "Lucca":      { mail: "italnololucca@gmail.com",     wa: "" },
-  "Pontedera":  { mail: "",                            wa: "" },
-  "Empoli":     { mail: "italnoloempoli@gmail.com",    wa: "" },
-  "Officina":   { mail: "",                            wa: "" },
-  "Trasporti":  { mail: "corrierelocom@gmail.com",     wa: "" }
+  "Sarzana":   { mail: "sarzana@italnolo.it",   officina: "officina.sz@italnolo.it", wa: "" },
+  "La Spezia": { mail: "laspezia@italnolo.it",  officina: "officina.sp@italnolo.it", wa: "" },
+  "Massa":     { mail: "massa@italnolo.it",     officina: "officina.ms@italnolo.it", wa: "" },
+  "Viareggio": { mail: "viareggio@italnolo.it", officina: "officina.vi@italnolo.it", wa: "" },
+  "Pisa":      { mail: "pisa@italnolo.it",      officina: "officina.pi@italnolo.it", wa: "" },
+  "Lucca":     { mail: "lucca@italnolo.it",     officina: "officina.lu@italnolo.it", wa: "" },
+  "Pontedera": { mail: "pontedera@italnolo.it", officina: "officina.po@italnolo.it", wa: "" },
+  "Empoli":    { mail: "empoli@italnolo.it",    officina: "officina.em@italnolo.it", wa: "" },
+  "Trasporti": { mail: "",                      officina: "",                        wa: "" }
 };
 /* ============================================================ */
 
@@ -426,11 +429,15 @@ function oggettoMail(d){
 $("btnMail").addEventListener("click", () => {
   const d = datiForm(); if(!d) return;
   const a  = (SEDI[d.sede] || {}).mail || "";
-  const cc = d.tipo === "Spostamento" ? ((SEDI[d.sedeDest] || {}).mail || "") : "";
+  const cc = [];
+  if (d.tipo === "Spostamento" && (SEDI[d.sedeDest] || {}).mail)
+    cc.push(SEDI[d.sedeDest].mail);
+  if ($("ccOfficina").checked && (SEDI[d.sede] || {}).officina)
+    cc.push(SEDI[d.sede].officina);
   let url = "mailto:" + encodeURIComponent(a) +
     "?subject=" + encodeURIComponent(oggettoMail(d)) +
     "&body="    + encodeURIComponent(testoMessaggio(d));
-  if (cc) url += "&cc=" + encodeURIComponent(cc);
+  if (cc.length) url += "&cc=" + encodeURIComponent(cc.join(","));
   window.location.href = url;
 });
 
