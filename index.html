@@ -32,6 +32,8 @@
   .anteprima b{color:var(--arancio-scuro)}
   button.invia{width:100%;padding:15px;font-size:16px;font-weight:700;color:#fff;background:var(--arancio);border:0;border-radius:10px;cursor:pointer;margin-top:6px}
   button.invia:disabled{background:#BDC1C6;cursor:not-allowed}
+  button.secondaria{width:100%;padding:13px;font-size:15px;font-weight:600;color:var(--arancio-scuro);background:#fff;border:1.5px solid var(--arancio);border-radius:10px;cursor:pointer}
+  button.secondaria:disabled{color:#9AA0A6;border-color:var(--bordo);cursor:not-allowed}
   .esito{padding:12px;border-radius:8px;font-size:14px;margin-top:12px;display:none}
   .esito.ok{display:block;background:#E6F4EA;color:#137333;border:1px solid #A8DAB5}
   .esito.ko{display:block;background:#FCE8E6;color:#C5221F;border:1px solid #F5B5B0}
@@ -51,7 +53,7 @@
 </header>
 
 <div id="avvisoConfig" class="avviso" style="display:none">
-  ⚙️ ID calendario non impostato: gli eventi si apriranno sul calendario predefinito dell'account con cui sei connesso.
+  ⚙️ <b>Configurazione mancante:</b> apri il file e inserisci l'URL della Web App di Apps Script nella costante <code>URL_SCRIPT</code> in fondo alla pagina.
 </div>
 
 <div class="card">
@@ -121,6 +123,29 @@
     <div class="chip" data-val="Congedo" data-modo="giorno">Congedo</div>
     <div class="chip" data-val="Legge 104" data-modo="giorno">L. 104</div>
     <div class="chip" data-val="Recupero ore" data-modo="ora">Recupero ore</div>
+    <div class="chip" data-val="Spostamento" data-modo="giorno">Spostamento sede</div>
+  </div>
+
+  <div id="boxSpostamento" style="display:none">
+    <div class="riga">
+      <div>
+        <label for="sedeDestinazione">Va a lavorare a</label>
+        <select id="sedeDestinazione">
+          <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
+          <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
+          <option>Pontedera</option><option>Empoli</option>
+        </select>
+      </div>
+      <div>
+        <label for="motivoSpostamento">Motivo</label>
+        <select id="motivoSpostamento">
+          <option>Copertura</option><option>Sostituzione</option>
+          <option>Supporto operativo</option><option>Trasporto</option>
+          <option>Formazione</option><option>Altro</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint">Il campo <b>Sede</b> in alto e' quella di provenienza.</div>
   </div>
 
   <label>Durata</label>
@@ -166,6 +191,11 @@
   <h3>Anteprima evento</h3>
   <div class="anteprima" id="anteprima">—</div>
   <button class="invia" id="btnInvia">Apri in Google Calendar</button>
+  <div class="riga" style="margin-top:10px">
+    <button class="secondaria" id="btnMail">📧 Email alla sede</button>
+    <button class="secondaria" id="btnWa">💬 WhatsApp</button>
+  </div>
+  <div class="hint">Comunicano l'autorizzazione alla sede. Il messaggio è già compilato: controlla e invia.</div>
   <div class="esito" id="esito"></div>
 </div>
 
@@ -178,19 +208,31 @@
 
 <script>
 /* ============================================================
-   CONFIGURAZIONE
-   ID del calendario su cui inserire le assenze.
-   Se lasci vuoto, si apre il calendario predefinito dell'account.
-   Lo trovi in: Google Calendar > Impostazioni del calendario
-                > Integra il calendario > ID calendario
+   CONFIGURAZIONE — calendario di destinazione
    ============================================================ */
 const CAL_ID = "gestionepersonalelocom@gmail.com";
+
+/* Rubrica sedi — completa i numeri WhatsApp in formato internazionale
+   senza + e senza spazi (es. 393331234567). Se un numero manca,
+   WhatsApp si apre lasciandoti scegliere il contatto a mano. */
+const SEDI = {
+  "Sarzana":    { mail: "italnolosarzana@gmail.com",   wa: "" },
+  "La Spezia":  { mail: "italnololaspezia@gmail.com",  wa: "" },
+  "Massa":      { mail: "italnolomassa@gmail.com",     wa: "" },
+  "Viareggio":  { mail: "italnoloviareggio@gmail.com", wa: "" },
+  "Pisa":       { mail: "italnolopisa@gmail.com",      wa: "" },
+  "Lucca":      { mail: "italnololucca@gmail.com",     wa: "" },
+  "Pontedera":  { mail: "",                            wa: "" },
+  "Empoli":     { mail: "italnoloempoli@gmail.com",    wa: "" },
+  "Officina":   { mail: "",                            wa: "" },
+  "Trasporti":  { mail: "corrierelocom@gmail.com",     wa: "" }
+};
 /* ============================================================ */
 
 const $ = id => document.getElementById(id);
 const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", inseriti:[] };
 
-if (!CAL_ID) $("avvisoConfig").style.display = "block";
+
 
 // data di oggi come default
 const oggi = new Date().toISOString().slice(0,10);
@@ -207,6 +249,8 @@ function chipGroup(contenitore, onPick){
 chipGroup("chipsOperatore", c => stato.operatore = c.dataset.val);
 chipGroup("chipsTipo", c => {
   stato.tipo = c.dataset.val;
+  $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
+  $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
   // il tipo suggerisce la durata, ma resta modificabile
   setModo(c.dataset.modo);
 });
@@ -230,7 +274,7 @@ $("dipendente").addEventListener("change", () => {
   }
   aggiorna();
 });
-["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale"]
+["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale","sedeDestinazione","motivoSpostamento"]
   .forEach(id => $(id).addEventListener("input", aggiorna));
 
 $("dataInizio").addEventListener("change", () => {
@@ -244,7 +288,22 @@ function datiForm(){
   if(!nome) return null;
   const d = { nome, sede, tipo: stato.tipo, modo: stato.modo,
               note: $("note").value.trim(), operatore: stato.operatore };
-  d.titolo = nome + " – " + sede + " – " + stato.tipo;
+  if (stato.tipo === "Spostamento") {
+    d.destinazione = $("sedeDestinazione").value;
+    d.motivo       = $("motivoSpostamento").value;
+    if (d.destinazione === sede) return null;
+    d.titolo = nome + " – " + sede + " \u2192 " + d.destinazione + " – " + d.motivo;
+  } else {
+    if (stato.tipo === "Spostamento") {
+    d.sedeDest = $("sedeDest").value;
+    d.motivo   = $("motivo").value;
+    if (d.sedeDest === sede) return null;      // provenienza e destinazione uguali
+    d.titolo = nome + " – " + sede + " → " + d.sedeDest +
+               (d.motivo ? " – " + d.motivo : "");
+  } else {
+    d.titolo = nome + " – " + sede + " – " + stato.tipo;
+  }
+  }
   if (stato.modo === "giorno") {
     d.dataInizio = $("dataInizio").value;
     d.dataFine   = $("dataFine").value || $("dataInizio").value;
@@ -268,8 +327,18 @@ function itDate(s){ const [a,m,g]=s.split("-"); return g+"/"+m+"/"+a; }
 function aggiorna(){
   const d = datiForm();
   const btn = $("btnInvia");
-  if(!d){ $("anteprima").innerHTML = "Completa i campi obbligatori."; btn.disabled = true; return; }
+  if(!d){
+    const conflitto = stato.tipo === "Spostamento" &&
+      $("sedeManuale").value === $("sedeDestinazione").value;
+    $("anteprima").innerHTML = conflitto
+      ? "\u26A0\uFE0F Provenienza e destinazione coincidono."
+      : "Completa i campi obbligatori.";
+    btn.disabled = true;
+    $("btnMail").disabled = true; $("btnWa").disabled = true;
+    return;
+  }
   btn.disabled = false;
+  $("btnMail").disabled = false; $("btnWa").disabled = false;
   let quando;
   if (d.modo === "giorno") {
     quando = d.dataInizio === d.dataFine
@@ -287,45 +356,98 @@ function aggiorna(){
 
 /* ---------------------------------------------------------------
    INVIO — apre Google Calendar con l'evento gia' compilato.
-   Nessuna autorizzazione, nessuno script, nessun URL da configurare.
    --------------------------------------------------------------- */
-
-function soloCifre(s){ return s.replace(/-/g, ""); }
 
 function linkCalendario(d){
   let dates;
   if (d.modo === "giorno"){
     const fine = new Date(d.dataFine + "T00:00:00");
-    fine.setDate(fine.getDate() + 1);            // Google usa la fine esclusiva
-    const fineStr = fine.getFullYear() +
+    fine.setDate(fine.getDate() + 1);              // Google usa la fine esclusiva
+    const f = fine.getFullYear() +
       String(fine.getMonth()+1).padStart(2,"0") +
       String(fine.getDate()).padStart(2,"0");
-    dates = soloCifre(d.dataInizio) + "/" + fineStr;
+    dates = d.dataInizio.replace(/-/g,"") + "/" + f;
   } else {
-    const g = soloCifre(d.data);
+    const g = d.data.replace(/-/g,"");
     dates = g + "T" + d.oraInizio.replace(":","") + "00/" +
             g + "T" + d.oraFine.replace(":","")   + "00";
   }
 
   let dettagli = "";
+  if (d.tipo === "Spostamento")
+    dettagli += "Spostamento da " + d.sede + " a " + d.destinazione +
+                " \u2014 motivo: " + d.motivo + "\n";
   if (d.note) dettagli += d.note + "\n";
   dettagli += "Inserito da " + d.operatore;
 
-  let url = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
     "&text="    + encodeURIComponent(d.titolo) +
     "&dates="   + dates +
     "&details=" + encodeURIComponent(dettagli) +
-    "&ctz=Europe/Rome";
-  if (CAL_ID) url += "&src=" + encodeURIComponent(CAL_ID);
-  return url;
+    "&ctz=Europe/Rome" +
+    "&src="     + encodeURIComponent(CAL_ID);
 }
+
+/* ---------- Comunicazione alla sede ---------- */
+
+function periodoTesto(d){
+  if (d.modo === "giorno"){
+    return d.dataInizio === d.dataFine
+      ? "il " + itDate(d.dataInizio)
+      : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) +
+        " (" + d.giorni + " giorni)";
+  }
+  return "il " + itDate(d.data) + " dalle " + d.oraInizio +
+         " alle " + d.oraFine + " (" + d.ore + " ore)";
+}
+
+function testoMessaggio(d){
+  let t;
+  if (d.tipo === "Spostamento"){
+    t = "Comunico lo spostamento di " + d.nome + " da " + d.sede +
+        " a " + d.sedeDest + " " + periodoTesto(d) +
+        (d.motivo ? " per " + d.motivo.toLowerCase() : "") + ".";
+  } else {
+    t = "Autorizzo " + d.tipo.toLowerCase() + " per " + d.nome +
+        " (" + d.sede + ") " + periodoTesto(d) + ".";
+  }
+  if (d.note) t += "\n\nNote: " + d.note;
+  t += "\n\nL'assenza è stata registrata sul calendario Gestione Personale.";
+  t += "\n\n" + d.operatore;
+  return t;
+}
+
+function oggettoMail(d){
+  return d.tipo === "Spostamento"
+    ? "Spostamento " + d.nome + " — " + d.sede + " → " + d.sedeDest
+    : "Autorizzazione " + d.tipo.toLowerCase() + " — " + d.nome;
+}
+
+$("btnMail").addEventListener("click", () => {
+  const d = datiForm(); if(!d) return;
+  const a  = (SEDI[d.sede] || {}).mail || "";
+  const cc = d.tipo === "Spostamento" ? ((SEDI[d.sedeDest] || {}).mail || "") : "";
+  let url = "mailto:" + encodeURIComponent(a) +
+    "?subject=" + encodeURIComponent(oggettoMail(d)) +
+    "&body="    + encodeURIComponent(testoMessaggio(d));
+  if (cc) url += "&cc=" + encodeURIComponent(cc);
+  window.location.href = url;
+});
+
+$("btnWa").addEventListener("click", () => {
+  const d = datiForm(); if(!d) return;
+  const num = (SEDI[d.sede] || {}).wa || "";
+  const url = "https://wa.me/" + num + "?text=" +
+              encodeURIComponent(testoMessaggio(d));
+  window.open(url, "_blank");
+});
 
 $("btnInvia").addEventListener("click", () => {
   const d = datiForm(); if(!d) return;
   window.open(linkCalendario(d), "_blank");
 
   $("esito").className = "esito ok";
-  $("esito").innerHTML = "\u2192 Google Calendar si e' aperto in una nuova scheda.<br>" +
+  $("esito").innerHTML = "\u2192 Google Calendar aperto in una nuova scheda.<br>" +
     "<b>Premi SALVA</b> per confermare l'inserimento.";
 
   const riga = document.createElement("div");
