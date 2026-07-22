@@ -3,527 +3,471 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Richiesta ferie e permessi — Lo.Com</title>
+<title>Lo.Com — Inserimento Ferie e Permessi</title>
 <style>
   :root{
-    --arancio:#F2780A;
-    --arancio-scuro:#C45E05;
-    --inchiostro:#14181D;
-    --grigio:#5C6672;
-    --linea:#DCE0E5;
-    --fondo:#F3F4F6;
-    --bianco:#FFFFFF;
-    --rosso:#C22B2B;
+    --arancio:#F2780A; --arancio-scuro:#C85F00;
+    --rosso:#D93025; --verde:#1E8E3E;
+    --grigio:#5F6368; --bordo:#DADCE0; --sfondo:#F5F6F8;
   }
   *{box-sizing:border-box}
-  body{
-    margin:0;background:var(--fondo);color:var(--inchiostro);
-    font-family:"Segoe UI",system-ui,-apple-system,Arial,sans-serif;
-    min-height:100vh;display:flex;flex-direction:column;
-  }
-  header{
-    background:var(--inchiostro);color:var(--bianco);padding:18px 28px;
-    display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
-  }
-  header .marchio{font-size:20px;font-weight:800;letter-spacing:.5px}
-  header .marchio span{color:var(--arancio)}
-  header a{color:#9AA4B0;text-decoration:none;font-size:14px}
-  header a:hover{color:var(--bianco)}
-  main{flex:1;width:100%;max-width:760px;margin:0 auto;padding:32px 20px 60px}
-  h1{font-size:24px;margin:0 0 6px}
-  .intro{color:var(--grigio);font-size:14px;margin:0 0 26px;line-height:1.5}
-  .scheda{
-    background:var(--bianco);border:1px solid var(--linea);border-radius:10px;
-    padding:24px;margin-bottom:18px;
-  }
-  .scheda h2{
-    font-size:13px;text-transform:uppercase;letter-spacing:1px;color:var(--arancio);
-    margin:0 0 18px;font-weight:700;
-  }
-  .riga{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .riga.tre{grid-template-columns:1fr 1fr 1fr}
-  @media(max-width:620px){.riga,.riga.tre{grid-template-columns:1fr}}
-  .campo{display:flex;flex-direction:column;margin-bottom:16px}
-  .campo:last-child{margin-bottom:0}
-  label{font-size:13px;font-weight:600;margin-bottom:6px}
-  label .opz{font-weight:400;color:var(--grigio)}
-  input,select,textarea{
-    font:inherit;font-size:15px;padding:10px 12px;border:1px solid var(--linea);
-    border-radius:6px;background:var(--bianco);color:var(--inchiostro);width:100%;
-  }
-  input:focus,select:focus,textarea:focus{
-    outline:none;border-color:var(--arancio);box-shadow:0 0 0 3px rgba(242,120,10,.2);
-  }
-  textarea{resize:vertical;min-height:70px}
-  .scelte{display:flex;gap:10px;flex-wrap:wrap}
-  .scelta{flex:1;min-width:150px}
-  .scelta input{position:absolute;opacity:0;pointer-events:none}
-  .scelta span{
-    display:block;text-align:center;padding:12px 10px;border:1px solid var(--linea);
-    border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;background:var(--bianco);
-  }
-  .scelta input:checked + span{
-    background:var(--arancio);border-color:var(--arancio);color:var(--bianco);
-  }
-  .scelta input:focus-visible + span{box-shadow:0 0 0 3px rgba(242,120,10,.45)}
-  .conteggio{
-    font-size:13px;color:var(--grigio);margin-top:10px;
-    background:var(--fondo);border-radius:6px;padding:9px 12px;
-  }
-  .conteggio strong{color:var(--inchiostro)}
-  .azioni{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
-  button{
-    font:inherit;font-weight:700;font-size:16px;padding:14px 26px;border:none;
-    border-radius:7px;cursor:pointer;background:var(--arancio);color:var(--bianco);
-  }
-  button:hover{background:var(--arancio-scuro)}
-  button:focus-visible{outline:3px solid rgba(242,120,10,.5);outline-offset:2px}
-  button.secondario{background:transparent;color:var(--grigio);border:1px solid var(--linea);font-size:14px;padding:13px 18px}
-  button.secondario:hover{background:var(--fondo);color:var(--inchiostro)}
-  .errore{color:var(--rosso);font-size:13px;margin-top:12px;display:none}
-  .errore.visibile{display:block}
-  .esito{
-    display:none;background:#EAF6EC;border:1px solid #B8DCC0;border-radius:8px;
-    padding:16px;margin-top:16px;font-size:14px;line-height:1.6;
-  }
-  .esito.visibile{display:block}
-  .anteprima{
-    white-space:pre-wrap;font-family:ui-monospace,"Courier New",monospace;font-size:13px;
-    background:var(--fondo);border:1px solid var(--linea);border-radius:6px;padding:14px;
-    margin-top:14px;max-height:260px;overflow:auto;
-  }
-  footer{background:var(--inchiostro);color:#7E8894;font-size:12px;padding:14px 28px}
-  .nascosto{display:none !important}
+  body{margin:0;background:var(--sfondo);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;color:#202124}
+  .wrap{max-width:720px;margin:0 auto;padding:16px}
+  header{background:var(--arancio);color:#fff;padding:18px 20px;border-radius:12px;margin-bottom:16px}
+  header h1{margin:0;font-size:20px}
+  header p{margin:4px 0 0;font-size:13px;opacity:.9}
+  .card{background:#fff;border:1px solid var(--bordo);border-radius:12px;padding:18px;margin-bottom:14px}
+  label{display:block;font-size:13px;font-weight:600;color:var(--grigio);margin:14px 0 6px}
+  label:first-child{margin-top:0}
+  input,select,textarea{width:100%;padding:11px 12px;font-size:16px;border:1px solid var(--bordo);border-radius:8px;font-family:inherit;background:#fff}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--arancio);outline-offset:-1px;border-color:var(--arancio)}
+  textarea{min-height:70px;resize:vertical}
+  .riga{display:flex;gap:12px}
+  .riga>div{flex:1}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{padding:9px 14px;border:1px solid var(--bordo);border-radius:20px;background:#fff;font-size:14px;cursor:pointer;user-select:none}
+  .chip.on{background:var(--arancio);border-color:var(--arancio);color:#fff;font-weight:600}
+  .hint{font-size:12px;color:var(--grigio);margin-top:6px;line-height:1.4}
+  .anteprima{background:#FFF4E8;border:1px solid #F5C99A;border-radius:8px;padding:12px;font-size:14px;line-height:1.6}
+  .anteprima b{color:var(--arancio-scuro)}
+  button.invia{width:100%;padding:15px;font-size:16px;font-weight:700;color:#fff;background:var(--arancio);border:0;border-radius:10px;cursor:pointer;margin-top:6px}
+  button.invia:disabled{background:#BDC1C6;cursor:not-allowed}
+  button.secondaria{width:100%;padding:13px;font-size:15px;font-weight:600;color:var(--arancio-scuro);background:#fff;border:1.5px solid var(--arancio);border-radius:10px;cursor:pointer}
+  button.secondaria:disabled{color:#9AA0A6;border-color:var(--bordo);cursor:not-allowed}
+  .esito{padding:12px;border-radius:8px;font-size:14px;margin-top:12px;display:none}
+  .esito.ok{display:block;background:#E6F4EA;color:#137333;border:1px solid #A8DAB5}
+  .esito.ko{display:block;background:#FCE8E6;color:#C5221F;border:1px solid #F5B5B0}
+  .storico{font-size:13px;color:var(--grigio)}
+  .storico div{padding:6px 0;border-bottom:1px solid var(--bordo)}
+  .storico div:last-child{border:0}
+  h3{font-size:14px;margin:0 0 10px;color:var(--grigio);text-transform:uppercase;letter-spacing:.5px}
+  .avviso{background:#FEF7E0;border:1px solid #FDD663;border-radius:8px;padding:10px 12px;font-size:13px;line-height:1.5;margin-bottom:14px}
 </style>
 </head>
 <body>
+<div class="wrap">
 
 <header>
-  <div class="marchio">LO<span>.</span>COM</div>
-  <a href="index.html">← Torna al portale</a>
+  <h1>Ferie, Permessi e Assenze</h1>
+  <p>Lo.Com · compila e premi il pulsante: Google Calendar si apre già pronto</p>
 </header>
 
-<main>
-  <h1>Richiesta ferie e permessi</h1>
-  <p class="intro">Compila i campi e premi <strong>Prepara la richiesta</strong>. Si apre la mail già scritta, indirizzata all'ufficio personale: controlla e premi Invia.</p>
+<div id="avvisoConfig" class="avviso" style="display:none">
+  ⚙️ <b>Configurazione mancante:</b> apri il file e inserisci l'URL della Web App di Apps Script nella costante <code>URL_SCRIPT</code> in fondo alla pagina.
+</div>
 
-  <div class="scheda">
-    <h2>Chi richiede</h2>
+<div class="card">
+  <label for="operatore">Inserito da</label>
+  <div class="chips" id="chipsOperatore">
+    <div class="chip on" data-val="Fabrizio">Fabrizio</div>
+    <div class="chip" data-val="Emiliano">Emiliano</div>
+  </div>
+
+  <div class="riga">
+    <div>
+      <label for="nomeManuale">Dipendente</label>
+      <input id="nomeManuale" placeholder="COGNOME Nome" autocomplete="off">
+    </div>
+    <div>
+      <label for="sedeManuale">Sede</label>
+      <select id="sedeManuale">
+        <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
+        <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
+        <option>Pontedera</option><option>Empoli</option><option>Trasporti</option>
+      </select>
+    </div>
+  </div>
+
+  <label for="dipendente">Oppure scegli dall'elenco (Area Nord)</label>
+  <select id="dipendente">
+    <option value="">— compila i campi qui sopra a mano —</option>
+    <optgroup label="Sarzana">
+      <option value="SECCO Luca|Sarzana">Secco Luca — magazzino</option>
+      <option value="CAITI Marco|Sarzana">Caiti Marco — banco</option>
+      <option value="CAGLIERI Riccardo|Sarzana">Caglieri Riccardo — magazzino</option>
+      <option value="BENASSI Jacopo|Sarzana">Benassi Jacopo — Jolly Area Nord</option>
+      <option value="LOMBARDO Armando|Sarzana">Lombardo Armando — manutentore</option>
+      <option value="MARCHESE Andrea|Sarzana">Marchese Andrea — manutentore</option>
+    </optgroup>
+    <optgroup label="La Spezia">
+      <option value="TAOUSSI Anas|La Spezia">Taoussi Anas — banco</option>
+      <option value="RUSSO Domenico|La Spezia">Russo Domenico — magazzino</option>
+      <option value="TADDEI Alessandro|La Spezia">Taddei Alessandro — manutentore</option>
+      <option value="KOULIBALY|La Spezia">Koulibaly — manutentore</option>
+    </optgroup>
+    <optgroup label="Massa">
+      <option value="CHINI Stefano|Massa">Chini Stefano — banco</option>
+      <option value="MATA Massimiliano|Massa">Mata Massimiliano — magazzino</option>
+      <option value="D'AQUINO Elettra|Massa">D'Aquino Elettra — magazzino</option>
+      <option value="GALLI Gianluca|Massa">Galli Gianluca — manutentore</option>
+    </optgroup>
+    <optgroup label="Viareggio">
+      <option value="APREA Domenico|Viareggio">Aprea Domenico — banco</option>
+      <option value="TOFANELLI Matteo|Viareggio">Tofanelli Matteo — banco</option>
+      <option value="CAIEZZA Alessandro|Viareggio">Caiezza Alessandro — magazzino</option>
+      <option value="SICHI Alessandro|Viareggio">Sichi Alessandro — autista</option>
+    </optgroup>
+    <optgroup label="Trasporti dedicati">
+      <option value="BRAHIMAJ Luli|Trasporti">Brahimaj Luli — autista Area Nord</option>
+      <option value="MONGILI Franco|Trasporti">Mongili Franco — corriere Nord+Sud</option>
+    </optgroup>
+  </select>
+  <div class="hint">L'elenco contiene per ora solo l'Area Nord. Per le altre sedi scrivi il nome a mano: verrà inserito allo stesso modo.</div>
+
+  <label>Tipo di assenza</label>
+  <div class="chips" id="chipsTipo">
+    <div class="chip on" data-val="Ferie" data-modo="giorno">Ferie</div>
+    <div class="chip" data-val="Permesso" data-modo="ora">Permesso</div>
+    <div class="chip" data-val="Permesso ROL" data-modo="ora">ROL</div>
+    <div class="chip" data-val="Malattia" data-modo="giorno">Malattia</div>
+    <div class="chip" data-val="Congedo" data-modo="giorno">Congedo</div>
+    <div class="chip" data-val="Legge 104" data-modo="giorno">L. 104</div>
+    <div class="chip" data-val="Recupero ore" data-modo="ora">Recupero ore</div>
+    <div class="chip" data-val="Spostamento" data-modo="giorno">Spostamento sede</div>
+  </div>
+
+  <div id="boxSpostamento" style="display:none">
     <div class="riga">
-      <div class="campo">
-        <label for="sede">Sede</label>
-        <select id="sede">
-          <option value="">— seleziona —</option>
+      <div>
+        <label for="sedeDestinazione">Va a lavorare a</label>
+        <select id="sedeDestinazione">
+          <option>Sarzana</option><option>La Spezia</option><option>Massa</option>
+          <option>Viareggio</option><option>Pisa</option><option>Lucca</option>
+          <option>Pontedera</option><option>Empoli</option>
         </select>
       </div>
-      <div class="campo">
-        <label for="dipendente">Dipendente</label>
-        <select id="dipendente">
-          <option value="">— prima scegli la sede —</option>
+      <div>
+        <label for="motivoSpostamento">Motivo</label>
+        <select id="motivoSpostamento">
+          <option>Copertura</option><option>Sostituzione</option>
+          <option>Supporto operativo</option><option>Trasporto</option>
+          <option>Formazione</option><option>Altro</option>
         </select>
       </div>
     </div>
+    <div class="hint">Il campo <b>Sede</b> in alto e' quella di provenienza.</div>
+  </div>
+
+  <label>Durata</label>
+  <div class="chips" id="chipsModo">
+    <div class="chip on" data-val="giorno">Giornata intera / più giorni</div>
+    <div class="chip" data-val="ora">A ore</div>
+  </div>
+  <div class="hint">Ferie, malattia e congedi sono giornalieri. I permessi vengono inseriti nella fascia oraria richiesta.</div>
+
+  <div id="boxGiorno">
     <div class="riga">
-      <div class="campo" id="boxNomeLibero" style="display:none">
-        <label for="nomeLibero">Nome e cognome</label>
-        <input type="text" id="nomeLibero" placeholder="Es. Mario Rossi">
+      <div>
+        <label for="dataInizio">Dal giorno</label>
+        <input type="date" id="dataInizio">
       </div>
-      <div class="campo">
-        <label for="mansione">Mansione</label>
-        <input type="text" id="mansione" placeholder="Es. Banco / Magazzino / Officina">
+      <div>
+        <label for="dataFine">Al giorno (incluso)</label>
+        <input type="date" id="dataFine">
       </div>
     </div>
+  </div>
+
+  <div id="boxOra" style="display:none">
+    <label for="dataOra">Giorno</label>
+    <input type="date" id="dataOra">
     <div class="riga">
-      <div class="campo">
-        <label for="email">E-mail <span class="opz">(facoltativa)</span></label>
-        <input type="email" id="email" placeholder="nome@esempio.it">
+      <div>
+        <label for="oraInizio">Dalle</label>
+        <input type="time" id="oraInizio" value="08:00" step="900">
       </div>
-      <div class="campo">
-        <label for="telefono">Telefono <span class="opz">(facoltativo)</span></label>
-        <input type="tel" id="telefono" placeholder="333 1234567">
+      <div>
+        <label for="oraFine">Alle</label>
+        <input type="time" id="oraFine" value="10:00" step="900">
       </div>
     </div>
   </div>
 
-  <div class="scheda">
-    <h2>Cosa richiede</h2>
-    <div class="campo">
-      <div class="scelte">
-        <label class="scelta"><input type="radio" name="tipo" value="ferie" checked><span>Ferie</span></label>
-        <label class="scelta"><input type="radio" name="tipo" value="permesso_giorni"><span>Permesso a giorni</span></label>
-        <label class="scelta"><input type="radio" name="tipo" value="permesso_ore"><span>Permesso a ore</span></label>
-      </div>
-    </div>
+  <label for="note">Note (facoltative)</label>
+  <textarea id="note" placeholder="es. approvato il 20/07/2026 — sostituito da Benassi"></textarea>
+</div>
 
-    <div id="bloccoGiorni">
-      <div class="riga">
-        <div class="campo">
-          <label for="dal">Dal giorno</label>
-          <input type="date" id="dal">
-        </div>
-        <div class="campo">
-          <label for="al">Al giorno</label>
-          <input type="date" id="al">
-        </div>
-      </div>
-      <div class="conteggio" id="contGiorni">Totale: <strong>—</strong></div>
-    </div>
-
-    <div id="bloccoOre" class="nascosto">
-      <div class="riga tre">
-        <div class="campo">
-          <label for="giorno">Giorno</label>
-          <input type="date" id="giorno">
-        </div>
-        <div class="campo">
-          <label for="dalleOre">Dalle ore</label>
-          <input type="time" id="dalleOre">
-        </div>
-        <div class="campo">
-          <label for="alleOre">Alle ore</label>
-          <input type="time" id="alleOre">
-        </div>
-      </div>
-      <div class="conteggio" id="contOre">Totale: <strong>—</strong></div>
-    </div>
+<div class="card">
+  <h3>Anteprima evento</h3>
+  <div class="anteprima" id="anteprima">—</div>
+  <button class="invia" id="btnInvia">Apri in Google Calendar</button>
+  <div class="riga" style="margin-top:10px">
+    <button class="secondaria" id="btnMail">📧 Email alla sede</button>
+    <button class="secondaria" id="btnWa">💬 WhatsApp</button>
   </div>
+  <label style="display:flex;align-items:center;gap:8px;font-weight:500;margin-top:12px;cursor:pointer">
+    <input type="checkbox" id="ccOfficina" style="width:auto;margin:0">
+    Metti in copia anche l'officina della sede
+  </label>
+  <div class="hint">Comunicano l'autorizzazione alla sede. Il messaggio è già compilato: controlla e invia.</div>
+  <div class="esito" id="esito"></div>
+</div>
 
-  <div class="scheda">
-    <h2>Note</h2>
-    <div class="campo">
-      <label for="note">Note per l'ufficio personale <span class="opz">(facoltative)</span></label>
-      <textarea id="note" placeholder="Es. sostituito da... / disponibile a rientrare in caso di necessità"></textarea>
-    </div>
-  </div>
+<div class="card">
+  <h3>Inserimenti di questa sessione</h3>
+  <div class="storico" id="storico"><div>Nessun inserimento.</div></div>
+</div>
 
-  <div class="azioni">
-    <button type="button" id="btnInvia">Prepara la richiesta</button>
-    <button type="button" class="secondario" id="btnCopia">Copia il testo</button>
-    <button type="button" class="secondario" id="btnPosta">Usa il programma di posta</button>
-  </div>
-  <div class="errore" id="errore"></div>
-
-  <div class="esito" id="esito">
-    ✔ Si è aperta la finestra di Gmail con la richiesta già compilata. <strong>Controlla e premi Invia.</strong>
-    Se non si è aperta niente, sblocca i popup del browser oppure usa "Copia il testo".
-  </div>
-
-  <div class="anteprima" id="anteprima" style="display:none"></div>
-</main>
-
-<footer>LO.COM. Logistica Commerciale S.r.l. — Via Pecorina, 111 — 19038 Sarzana (SP) — Tel. 0187.627205</footer>
+</div>
 
 <script>
 /* ============================================================
-   CONFIGURAZIONE — l'unica parte da modificare nel tempo
+   CONFIGURAZIONE — calendario di destinazione
    ============================================================ */
+const CAL_ID = "gestionepersonalelocom@gmail.com";
 
-// Destinatario delle richieste
-var DESTINATARIO = "gestionepersonalelocom@gmail.com";
-
-// Sedi: mail della sede (mittente) + elenco dipendenti
-var SEDI = {
-  "Sarzana": {
-    mail: "italnolosarzana@gmail.com",
-    dipendenti: [
-      ["Luca Secco","Magazzino"],
-      ["Marco Caiti","Banco / Commerciale"],
-      ["Riccardo Caglieri","Magazzino"],
-      ["Jacopo Benassi","Jolly Area Nord"],
-      ["Armando Lombardo","Manutentore / Officina"],
-      ["Andrea Marchese","Manutentore / Officina"],
-      ["Luli Brahimaj","Autista Area Nord"],
-      ["Fabrizio Caiti","Rental Manager"]
-    ]
-  },
-  "La Spezia": {
-    mail: "italnololaspezia@gmail.com",
-    dipendenti: [
-      ["Anas Taoussi","Banco / Commerciale"],
-      ["Domenico Russo","Magazzino"],
-      ["Alessandro Taddei","Manutentore / Officina"],
-      ["Koulibaly","Manutentore / Officina"]
-    ]
-  },
-  "Massa": {
-    mail: "italnolomassa@gmail.com",
-    dipendenti: [
-      ["Stefano Chini","Banco / Commerciale"],
-      ["Massimiliano Mata","Magazzino"],
-      ["Elettra D'Aquino","Magazzino"],
-      ["Gianluca Galli","Manutentore / Magazzino"]
-    ]
-  },
-  "Viareggio": {
-    mail: "italnoloviareggio@gmail.com",
-    dipendenti: [
-      ["Domenico Aprea","Banco / Commerciale"],
-      ["Matteo Tofanelli","Banco / Commerciale"],
-      ["Alessandro Caiezza","Magazzino"],
-      ["Alessandro Sichi","Autista / Trasportatore"]
-    ]
-  },
-  // --- AREA SUD ---
-  // Nomi dipendenti ancora da inserire (in attesa delle foto organico).
-  // Struttura ruoli riportata come promemoria dalla skill gestione-ferie-sud.
-  "Pisa": {
-    mail: "italnolopisa@gmail.com",
-    dipendenti: [
-      ["Cicchetti","Autista dedicato Pisa"]
-      // Pisa: 2 banco + 5 magazzinieri/meccanici — nomi da inserire
-    ]
-  },
-  "Lucca": {
-    mail: "italnololucca@gmail.com",
-    dipendenti: [
-      // Lucca: 4 persone — nomi e ruoli da inserire
-    ]
-  },
-  "Pontedera": {
-    mail: "italnolopontedera@gmail.com", // dedotto dallo schema — DA CONFERMARE
-    dipendenti: [
-      // Pontedera: 1 banco + 1 magazzino + 1 meccanico/magazziniere — nomi da inserire
-    ]
-  },
-  "Empoli": {
-    mail: "italnoloempoli@gmail.com",
-    dipendenti: [
-      // Empoli: 1 banco + 2 magazzinieri — nomi da inserire
-    ]
-  }
+/* Rubrica sedi — completa i numeri WhatsApp in formato internazionale
+   senza + e senza spazi (es. 393331234567). Se un numero manca,
+   WhatsApp si apre lasciandoti scegliere il contatto a mano. */
+const SEDI = {
+  "Sarzana":   { mail: "sarzana@italnolo.it",   officina: "officina.sz@italnolo.it", wa: "" },
+  "La Spezia": { mail: "laspezia@italnolo.it",  officina: "officina.sp@italnolo.it", wa: "" },
+  "Massa":     { mail: "massa@italnolo.it",     officina: "officina.ms@italnolo.it", wa: "" },
+  "Viareggio": { mail: "viareggio@italnolo.it", officina: "officina.vi@italnolo.it", wa: "" },
+  "Pisa":      { mail: "pisa@italnolo.it",      officina: "officina.pi@italnolo.it", wa: "" },
+  "Lucca":     { mail: "lucca@italnolo.it",     officina: "officina.lu@italnolo.it", wa: "" },
+  "Pontedera": { mail: "pontedera@italnolo.it", officina: "officina.po@italnolo.it", wa: "" },
+  "Empoli":    { mail: "empoli@italnolo.it",    officina: "officina.em@italnolo.it", wa: "" },
+  "Trasporti": { mail: "",                      officina: "",                        wa: "" }
 };
+/* ============================================================ */
 
-// Corrieri: non appartengono a una sede
-var CORRIERI = [["Franco Mongili","Autista / Corriere Area Nord+Sud"]];
+const $ = id => document.getElementById(id);
+const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", inseriti:[] };
 
-/* ============================================================
-   Da qui in giù non serve modificare nulla
-   ============================================================ */
 
-var selSede = document.getElementById('sede');
-var selDip = document.getElementById('dipendente');
-var boxNomeLibero = document.getElementById('boxNomeLibero');
-var inpNomeLibero = document.getElementById('nomeLibero');
-var inpMansione = document.getElementById('mansione');
-var errore = document.getElementById('errore');
-var esito = document.getElementById('esito');
 
-// popola sedi
-Object.keys(SEDI).forEach(function(s){
-  var o = document.createElement('option'); o.value = s; o.textContent = s;
-  selSede.appendChild(o);
-});
-var oc = document.createElement('option');
-oc.value = "Corriere interno"; oc.textContent = "Corriere interno (nessuna sede)";
-selSede.appendChild(oc);
+// data di oggi come default
+const oggi = new Date().toISOString().slice(0,10);
+["dataInizio","dataFine","dataOra"].forEach(id => $(id).value = oggi);
 
-selSede.addEventListener('change', function(){
-  var lista = selSede.value === "Corriere interno"
-    ? CORRIERI
-    : (SEDI[selSede.value] ? SEDI[selSede.value].dipendenti : []);
-  selDip.innerHTML = '';
-  var vuota = document.createElement('option');
-  vuota.value = ''; vuota.textContent = '— seleziona —';
-  selDip.appendChild(vuota);
-  lista.forEach(function(d){
-    var o = document.createElement('option');
-    o.value = d[0]; o.textContent = d[0]; o.dataset.mansione = d[1];
-    selDip.appendChild(o);
+// gestione chip generica
+function chipGroup(contenitore, onPick){
+  $(contenitore).addEventListener("click", e => {
+    const c = e.target.closest(".chip"); if(!c) return;
+    [...$(contenitore).children].forEach(x => x.classList.remove("on"));
+    c.classList.add("on"); onPick(c); aggiorna();
   });
-  var altro = document.createElement('option');
-  altro.value = '__altro__'; altro.textContent = 'Altro (scrivi il nome)';
-  selDip.appendChild(altro);
-  if (lista.length === 0) { selDip.value = '__altro__'; selDip.dispatchEvent(new Event('change')); }
+}
+chipGroup("chipsOperatore", c => stato.operatore = c.dataset.val);
+chipGroup("chipsTipo", c => {
+  stato.tipo = c.dataset.val;
+  $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
+  $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
+  // il tipo suggerisce la durata, ma resta modificabile
+  setModo(c.dataset.modo);
+});
+chipGroup("chipsModo", c => setModo(c.dataset.val));
+
+function setModo(m){
+  stato.modo = m;
+  [...$("chipsModo").children].forEach(x => x.classList.toggle("on", x.dataset.val === m));
+  $("boxGiorno").style.display = m === "giorno" ? "" : "none";
+  $("boxOra").style.display    = m === "ora"    ? "" : "none";
+}
+
+// scegliendo dall'elenco, i campi manuali si compilano da soli
+$("dipendente").addEventListener("change", () => {
+  const v = $("dipendente").value;
+  if (v) {
+    const [nome, sede] = v.split("|");
+    $("nomeManuale").value = nome;
+    $("sedeManuale").value = sede;
+    $("dipendente").selectedIndex = 0; // torna neutro: il dato vive nei campi sopra
+  }
+  aggiorna();
+});
+["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale","sedeDestinazione","motivoSpostamento"]
+  .forEach(id => $(id).addEventListener("input", aggiorna));
+
+$("dataInizio").addEventListener("change", () => {
+  if ($("dataFine").value < $("dataInizio").value) $("dataFine").value = $("dataInizio").value;
+  aggiorna();
 });
 
-selDip.addEventListener('change', function(){
-  var libero = selDip.value === '__altro__';
-  boxNomeLibero.style.display = libero ? 'flex' : 'none';
-  var op = selDip.options[selDip.selectedIndex];
-  if (!libero && op && op.dataset.mansione) inpMansione.value = op.dataset.mansione;
-  if (libero) inpMansione.value = '';
-});
-
-// tipo richiesta
-var bloccoGiorni = document.getElementById('bloccoGiorni');
-var bloccoOre = document.getElementById('bloccoOre');
-function tipoScelto(){ return document.querySelector('input[name="tipo"]:checked').value; }
-document.querySelectorAll('input[name="tipo"]').forEach(function(r){
-  r.addEventListener('change', function(){
-    var ore = tipoScelto() === 'permesso_ore';
-    bloccoGiorni.classList.toggle('nascosto', ore);
-    bloccoOre.classList.toggle('nascosto', !ore);
-  });
-});
-
-// conteggi
-var dal = document.getElementById('dal'), al = document.getElementById('al');
-var giorno = document.getElementById('giorno');
-var dalleOre = document.getElementById('dalleOre'), alleOre = document.getElementById('alleOre');
-
-function itData(v){
-  if(!v) return '';
-  var p = v.split('-');
-  return p[2] + '/' + p[1] + '/' + p[0];
-}
-function calcolaGiorni(){
-  if(!dal.value || !al.value) return null;
-  var a = new Date(dal.value), b = new Date(al.value);
-  if (b < a) return -1;
-  var tot = Math.round((b - a) / 86400000) + 1;
-  var lav = 0, d = new Date(a);
-  while (d <= b){ var g = d.getDay(); if (g !== 0 && g !== 6) lav++; d.setDate(d.getDate()+1); }
-  return { tot: tot, lav: lav };
-}
-function aggiornaGiorni(){
-  var r = calcolaGiorni();
-  var box = document.getElementById('contGiorni');
-  if (r === null){ box.innerHTML = 'Totale: <strong>—</strong>'; return; }
-  if (r === -1){ box.innerHTML = '<strong style="color:#C22B2B">La data finale è prima di quella iniziale.</strong>'; return; }
-  box.innerHTML = 'Totale: <strong>' + r.tot + ' giorni di calendario</strong> — di cui ' + r.lav + ' lavorativi (lun-ven, festività escluse dal conteggio)';
-}
-dal.addEventListener('change', aggiornaGiorni);
-al.addEventListener('change', aggiornaGiorni);
-dal.addEventListener('change', function(){ if(!al.value) al.value = dal.value; aggiornaGiorni(); });
-
-function calcolaOre(){
-  if(!dalleOre.value || !alleOre.value) return null;
-  var a = dalleOre.value.split(':'), b = alleOre.value.split(':');
-  var m = (b[0]*60 + +b[1]) - (a[0]*60 + +a[1]);
-  return m;
-}
-function aggiornaOre(){
-  var m = calcolaOre();
-  var box = document.getElementById('contOre');
-  if (m === null){ box.innerHTML = 'Totale: <strong>—</strong>'; return; }
-  if (m <= 0){ box.innerHTML = '<strong style="color:#C22B2B">L\'orario finale deve essere dopo quello iniziale.</strong>'; return; }
-  var h = Math.floor(m/60), r = m%60;
-  box.innerHTML = 'Totale: <strong>' + h + ' ore' + (r ? ' e ' + r + ' minuti' : '') + '</strong>';
-}
-dalleOre.addEventListener('change', aggiornaOre);
-alleOre.addEventListener('change', aggiornaOre);
-
-// costruzione della richiesta
-function nomeDipendente(){
-  return selDip.value === '__altro__' ? inpNomeLibero.value.trim() : selDip.value;
-}
-function verifica(){
-  var e = [];
-  if(!selSede.value) e.push('Scegli la sede.');
-  if(!nomeDipendente()) e.push('Indica il dipendente.');
-  if(tipoScelto() === 'permesso_ore'){
-    if(!giorno.value) e.push('Indica il giorno del permesso.');
-    if(!dalleOre.value || !alleOre.value) e.push('Indica orario di inizio e fine.');
-    else if(calcolaOre() <= 0) e.push('L\'orario finale deve essere dopo quello iniziale.');
+function datiForm(){
+  const nome = ($("nomeManuale").value || "").trim();
+  const sede = $("sedeManuale").value;
+  if(!nome) return null;
+  const d = { nome, sede, tipo: stato.tipo, modo: stato.modo,
+              note: $("note").value.trim(), operatore: stato.operatore };
+  if (stato.tipo === "Spostamento") {
+    d.destinazione = $("sedeDestinazione").value;
+    d.motivo       = $("motivoSpostamento").value;
+    if (d.destinazione === sede) return null;
+    d.titolo = nome + " – " + sede + " \u2192 " + d.destinazione + " – " + d.motivo;
   } else {
-    if(!dal.value || !al.value) e.push('Indica la data di inizio e di fine.');
-    else if(calcolaGiorni() === -1) e.push('La data finale è prima di quella iniziale.');
-  }
-  return e;
-}
-function etichettaTipo(){
-  var t = tipoScelto();
-  if(t === 'ferie') return 'FERIE';
-  if(t === 'permesso_giorni') return 'PERMESSO A GIORNI';
-  return 'PERMESSO ORARIO';
-}
-function oggi(){
-  var d = new Date();
-  return ('0'+d.getDate()).slice(-2)+'/'+('0'+(d.getMonth()+1)).slice(-2)+'/'+d.getFullYear();
-}
-function oggetto(){
-  var nome = nomeDipendente();
-  var per = tipoScelto() === 'permesso_ore'
-    ? itData(giorno.value)
-    : itData(dal.value) + ' - ' + itData(al.value);
-  return 'RICHIESTA ' + etichettaTipo() + ' - ' + nome + ' - ' + selSede.value + ' - ' + per;
-}
-function corpo(){
-  var r = [];
-  r.push('RICHIESTA DI ' + etichettaTipo());
-  r.push('');
-  r.push('Data richiesta: ' + oggi());
-  r.push('Sede: ' + selSede.value);
-  r.push('Dipendente: ' + nomeDipendente());
-  if(inpMansione.value.trim()) r.push('Mansione: ' + inpMansione.value.trim());
-  r.push('');
-  if(tipoScelto() === 'permesso_ore'){
-    var m = calcolaOre(), h = Math.floor(m/60), min = m%60;
-    r.push('Richiesta di n. ' + h + (min ? ' ore e ' + min + ' minuti' : ' ore') + ' di permesso');
-    r.push('Giorno: ' + itData(giorno.value));
-    r.push('Dalle ore ' + dalleOre.value + ' alle ore ' + alleOre.value);
+    if (stato.tipo === "Spostamento") {
+    d.sedeDest = $("sedeDest").value;
+    d.motivo   = $("motivo").value;
+    if (d.sedeDest === sede) return null;      // provenienza e destinazione uguali
+    d.titolo = nome + " – " + sede + " → " + d.sedeDest +
+               (d.motivo ? " – " + d.motivo : "");
   } else {
-    var g = calcolaGiorni();
-    r.push('Richiesta di n. ' + g.tot + ' giorni (' + g.lav + ' lavorativi lun-ven)');
-    r.push('Dal giorno ' + itData(dal.value) + ' al giorno ' + itData(al.value) + ' compresi');
+    d.titolo = nome + " – " + sede + " – " + stato.tipo;
   }
-  var em = document.getElementById('email').value.trim();
-  var tel = document.getElementById('telefono').value.trim();
-  if(em || tel){
-    r.push('');
-    r.push('Recapiti del dipendente:');
-    if(em) r.push('E-mail: ' + em);
-    if(tel) r.push('Telefono: ' + tel);
   }
-  var n = document.getElementById('note').value.trim();
-  if(n){ r.push(''); r.push('Note: ' + n); }
-  r.push('');
-  r.push('-----------------------------------------------');
-  r.push('Richiesta inviata dal Portale Sedi Lo.Com');
-  r.push('LO.COM. Logistica Commerciale S.r.l. - Sarzana (SP)');
-  return r.join('\n');
-}
-function mostraErrori(e){
-  if(e.length){
-    errore.innerHTML = '⚠ ' + e.join('<br>⚠ ');
-    errore.classList.add('visibile');
-    esito.classList.remove('visibile');
-    return true;
+  if (stato.modo === "giorno") {
+    d.dataInizio = $("dataInizio").value;
+    d.dataFine   = $("dataFine").value || $("dataInizio").value;
+    if(!d.dataInizio) return null;
+    const g = Math.round((new Date(d.dataFine) - new Date(d.dataInizio))/86400000) + 1;
+    d.giorni = g;
+  } else {
+    d.data = $("dataOra").value;
+    d.oraInizio = $("oraInizio").value;
+    d.oraFine   = $("oraFine").value;
+    if(!d.data || !d.oraInizio || !d.oraFine) return null;
+    if (d.oraFine <= d.oraInizio) return null;
+    const m = (h => (+h.split(":")[0])*60 + (+h.split(":")[1]));
+    d.ore = ((m(d.oraFine)-m(d.oraInizio))/60).toFixed(2).replace(/\.00$/,"");
   }
-  errore.classList.remove('visibile');
-  return false;
-}
-function anteprima(){
-  var a = document.getElementById('anteprima');
-  a.textContent = 'A: ' + DESTINATARIO + '\nOggetto: ' + oggetto() + '\n\n' + corpo();
-  a.style.display = 'block';
+  return d;
 }
 
-document.getElementById('btnInvia').addEventListener('click', function(){
-  var e = verifica();
-  if(mostraErrori(e)) return;
-  var mittente = (SEDI[selSede.value] && SEDI[selSede.value].mail) || '';
-  var url = 'https://mail.google.com/mail/?view=cm&fs=1'
-          + (mittente ? '&authuser=' + encodeURIComponent(mittente) : '')
-          + '&to=' + encodeURIComponent(DESTINATARIO)
-          + '&su=' + encodeURIComponent(oggetto())
-          + '&body=' + encodeURIComponent(corpo());
-  window.open(url, '_blank');
-  esito.classList.add('visibile');
-  anteprima();
+function itDate(s){ const [a,m,g]=s.split("-"); return g+"/"+m+"/"+a; }
+
+function aggiorna(){
+  const d = datiForm();
+  const btn = $("btnInvia");
+  if(!d){
+    const conflitto = stato.tipo === "Spostamento" &&
+      $("sedeManuale").value === $("sedeDestinazione").value;
+    $("anteprima").innerHTML = conflitto
+      ? "\u26A0\uFE0F Provenienza e destinazione coincidono."
+      : "Completa i campi obbligatori.";
+    btn.disabled = true;
+    $("btnMail").disabled = true; $("btnWa").disabled = true;
+    return;
+  }
+  btn.disabled = false;
+  $("btnMail").disabled = false; $("btnWa").disabled = false;
+  let quando;
+  if (d.modo === "giorno") {
+    quando = d.dataInizio === d.dataFine
+      ? itDate(d.dataInizio) + " — tutto il giorno"
+      : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) + " (" + d.giorni + " giorni)";
+  } else {
+    quando = itDate(d.data) + " — dalle " + d.oraInizio + " alle " + d.oraFine + " (" + d.ore + " ore)";
+  }
+  $("anteprima").innerHTML =
+    "<b>" + d.titolo + "</b><br>" + quando +
+    "<br>Calendario GESTIONE DEL PERSONALE" +
+    (d.note ? "<br>Note: " + d.note : "") +
+    "<br><span style='color:#5F6368;font-size:12px'>Inserito da " + d.operatore + "</span>";
+}
+
+/* ---------------------------------------------------------------
+   INVIO — apre Google Calendar con l'evento gia' compilato.
+   --------------------------------------------------------------- */
+
+function linkCalendario(d){
+  let dates;
+  if (d.modo === "giorno"){
+    const fine = new Date(d.dataFine + "T00:00:00");
+    fine.setDate(fine.getDate() + 1);              // Google usa la fine esclusiva
+    const f = fine.getFullYear() +
+      String(fine.getMonth()+1).padStart(2,"0") +
+      String(fine.getDate()).padStart(2,"0");
+    dates = d.dataInizio.replace(/-/g,"") + "/" + f;
+  } else {
+    const g = d.data.replace(/-/g,"");
+    dates = g + "T" + d.oraInizio.replace(":","") + "00/" +
+            g + "T" + d.oraFine.replace(":","")   + "00";
+  }
+
+  let dettagli = "";
+  if (d.tipo === "Spostamento")
+    dettagli += "Spostamento da " + d.sede + " a " + d.destinazione +
+                " \u2014 motivo: " + d.motivo + "\n";
+  if (d.note) dettagli += d.note + "\n";
+  dettagli += "Inserito da " + d.operatore;
+
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+    "&text="    + encodeURIComponent(d.titolo) +
+    "&dates="   + dates +
+    "&details=" + encodeURIComponent(dettagli) +
+    "&ctz=Europe/Rome" +
+    "&src="     + encodeURIComponent(CAL_ID);
+}
+
+/* ---------- Comunicazione alla sede ---------- */
+
+function periodoTesto(d){
+  if (d.modo === "giorno"){
+    return d.dataInizio === d.dataFine
+      ? "il " + itDate(d.dataInizio)
+      : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) +
+        " (" + d.giorni + " giorni)";
+  }
+  return "il " + itDate(d.data) + " dalle " + d.oraInizio +
+         " alle " + d.oraFine + " (" + d.ore + " ore)";
+}
+
+function testoMessaggio(d){
+  let t;
+  if (d.tipo === "Spostamento"){
+    t = "Comunico lo spostamento di " + d.nome + " da " + d.sede +
+        " a " + d.sedeDest + " " + periodoTesto(d) +
+        (d.motivo ? " per " + d.motivo.toLowerCase() : "") + ".";
+  } else {
+    t = "Autorizzo " + d.tipo.toLowerCase() + " per " + d.nome +
+        " (" + d.sede + ") " + periodoTesto(d) + ".";
+  }
+  if (d.note) t += "\n\nNote: " + d.note;
+  t += "\n\nL'assenza è stata registrata sul calendario Gestione Personale.";
+  t += "\n\n" + d.operatore;
+  return t;
+}
+
+function oggettoMail(d){
+  return d.tipo === "Spostamento"
+    ? "Spostamento " + d.nome + " — " + d.sede + " → " + d.sedeDest
+    : "Autorizzazione " + d.tipo.toLowerCase() + " — " + d.nome;
+}
+
+$("btnMail").addEventListener("click", () => {
+  const d = datiForm(); if(!d) return;
+  const a  = (SEDI[d.sede] || {}).mail || "";
+  const cc = [];
+  if (d.tipo === "Spostamento" && (SEDI[d.sedeDest] || {}).mail)
+    cc.push(SEDI[d.sedeDest].mail);
+  if ($("ccOfficina").checked && (SEDI[d.sede] || {}).officina)
+    cc.push(SEDI[d.sede].officina);
+  let url = "mailto:" + encodeURIComponent(a) +
+    "?subject=" + encodeURIComponent(oggettoMail(d)) +
+    "&body="    + encodeURIComponent(testoMessaggio(d));
+  if (cc.length) url += "&cc=" + encodeURIComponent(cc.join(","));
+  window.location.href = url;
 });
 
-document.getElementById('btnPosta').addEventListener('click', function(){
-  var e = verifica();
-  if(mostraErrori(e)) return;
-  window.location.href = 'mailto:' + DESTINATARIO
-    + '?subject=' + encodeURIComponent(oggetto())
-    + '&body=' + encodeURIComponent(corpo());
-  anteprima();
+$("btnWa").addEventListener("click", () => {
+  const d = datiForm(); if(!d) return;
+  const num = (SEDI[d.sede] || {}).wa || "";
+  const url = "https://wa.me/" + num + "?text=" +
+              encodeURIComponent(testoMessaggio(d));
+  window.open(url, "_blank");
 });
 
-document.getElementById('btnCopia').addEventListener('click', function(){
-  var e = verifica();
-  if(mostraErrori(e)) return;
-  var testo = 'A: ' + DESTINATARIO + '\nOggetto: ' + oggetto() + '\n\n' + corpo();
-  var btn = this;
-  navigator.clipboard.writeText(testo).then(function(){
-    btn.textContent = 'Testo copiato';
-    setTimeout(function(){ btn.textContent = 'Copia il testo'; }, 2500);
-  }).catch(function(){ anteprima(); });
-  anteprima();
+$("btnInvia").addEventListener("click", () => {
+  const d = datiForm(); if(!d) return;
+  window.open(linkCalendario(d), "_blank");
+
+  $("esito").className = "esito ok";
+  $("esito").innerHTML = "\u2192 Google Calendar aperto in una nuova scheda.<br>" +
+    "<b>Premi SALVA</b> per confermare l'inserimento.";
+
+  const riga = document.createElement("div");
+  riga.textContent = new Date().toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit"})
+    + " \u2014 " + d.titolo;
+  if ($("storico").firstChild && $("storico").firstChild.textContent === "Nessun inserimento.")
+    $("storico").innerHTML = "";
+  $("storico").prepend(riga);
+  $("note").value = "";
+  aggiorna();
 });
+
+aggiorna();
 </script>
-
 </body>
 </html>
