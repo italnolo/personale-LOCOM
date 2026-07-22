@@ -78,7 +78,7 @@
     </div>
   </div>
 
-  <label for="dipendente">Oppure scegli dall'elenco (Area Nord)</label>
+  <label for="dipendente">Oppure scegli dall'elenco</label>
   <select id="dipendente">
     <option value="">— compila i campi qui sopra a mano —</option>
     <optgroup label="Sarzana">
@@ -107,12 +107,24 @@
       <option value="CAIEZZA Alessandro|Viareggio">Caiezza Alessandro — magazzino</option>
       <option value="SICHI Alessandro|Viareggio">Sichi Alessandro — autista</option>
     </optgroup>
-    <optgroup label="Trasporti dedicati">
+    <optgroup label="Area Sud — Pisa">
+      <option value="CICCHETTI|Pisa">Cicchetti — autista Pisa</option>
+    </optgroup>
+    <optgroup label="Area Sud — Empoli">
+      <option value="" disabled>— organico da inserire —</option>
+    </optgroup>
+    <optgroup label="Area Sud — Lucca">
+      <option value="" disabled>— organico da inserire —</option>
+    </optgroup>
+    <optgroup label="Area Sud — Pontedera">
+      <option value="" disabled>— organico da inserire —</option>
+    </optgroup>
+    <optgroup label="Trasporti / corriere">
       <option value="BRAHIMAJ Luli|Trasporti">Brahimaj Luli — autista Area Nord</option>
       <option value="MONGILI Franco|Trasporti">Mongili Franco — corriere Nord+Sud</option>
     </optgroup>
   </select>
-  <div class="hint">L'elenco contiene per ora solo l'Area Nord. Per le altre sedi scrivi il nome a mano: verrà inserito allo stesso modo.</div>
+  <div class="hint">Area Nord completa; Area Sud in inserimento. Per i nomi non ancora in elenco scrivi a mano: funziona uguale.</div>
 
   <label>Tipo di assenza</label>
   <div class="chips" id="chipsTipo">
