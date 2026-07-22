@@ -457,25 +457,56 @@ function periodoTesto(d){
 }
 
 function testoMessaggio(d){
+  const per = periodoTesto(d);
   let t;
-  if (d.tipo === "Spostamento"){
-    t = "Comunico lo spostamento di " + d.nome + " da " + d.sede +
-        " a " + d.destinazione + " " + periodoTesto(d) +
-        (d.motivo ? " per " + d.motivo.toLowerCase() : "") + ".";
-  } else {
-    t = "Autorizzo " + d.tipo.toLowerCase() + " per " + d.nome +
-        " (" + d.sede + ") " + periodoTesto(d) + ".";
+
+  switch (d.tipo) {
+    case "Spostamento":
+      t = "Comunico lo spostamento di " + d.nome + " da " + d.sede +
+          " a " + d.destinazione + " " + per +
+          (d.motivo ? " per " + d.motivo.toLowerCase() : "") + ".";
+      break;
+    case "Ferie":
+      t = "Comunico le ferie di " + d.nome + " (" + d.sede + ") " + per + ".";
+      break;
+    case "Malattia":
+      t = "Comunico l'assenza per malattia di " + d.nome + " (" + d.sede + ") " + per + ".";
+      break;
+    case "Permesso":
+    case "Permesso ROL":
+      t = "Comunico un " + d.tipo.toLowerCase() + " per " + d.nome +
+          " (" + d.sede + ") " + per + ".";
+      break;
+    case "Congedo":
+      t = "Comunico un congedo per " + d.nome + " (" + d.sede + ") " + per + ".";
+      break;
+    case "Legge 104":
+      t = "Comunico un permesso ex Legge 104 per " + d.nome +
+          " (" + d.sede + ") " + per + ".";
+      break;
+    case "Recupero ore":
+      t = "Comunico un recupero ore per " + d.nome + " (" + d.sede + ") " + per + ".";
+      break;
+    default:
+      t = "Comunico l'assenza di " + d.nome + " (" + d.sede + ") " + per +
+          " — " + d.tipo + ".";
   }
+
   if (d.note) t += "\n\nNote: " + d.note;
-  t += "\n\nL'assenza è stata registrata sul calendario Gestione Personale.";
+
+  // chiusura coerente col tipo
+  t += (d.tipo === "Spostamento")
+    ? "\n\nLo spostamento è stato segnato sul calendario Gestione Personale."
+    : "\n\nRegistrato sul calendario Gestione Personale.";
   t += "\n\n" + d.operatore;
   return t;
 }
 
 function oggettoMail(d){
-  return d.tipo === "Spostamento"
-    ? "Spostamento " + d.nome + " — " + d.sede + " → " + d.destinazione
-    : "Autorizzazione " + d.tipo.toLowerCase() + " — " + d.nome;
+  if (d.tipo === "Spostamento")
+    return "Spostamento " + d.nome + " — " + d.sede + " → " + d.destinazione +
+           (d.motivo ? " (" + d.motivo + ")" : "");
+  return d.tipo + " — " + d.nome + " (" + d.sede + ")";
 }
 
 $("btnMail").addEventListener("click", () => {
