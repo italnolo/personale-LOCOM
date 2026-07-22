@@ -179,9 +179,10 @@
   <label>Durata</label>
   <div class="chips" id="chipsModo">
     <div class="chip on" data-val="giorno">Giornata intera / più giorni</div>
+    <div class="chip" data-val="mezza">Mezza giornata</div>
     <div class="chip" data-val="ora">A ore</div>
   </div>
-  <div class="hint">Ferie, malattia e congedi sono giornalieri. I permessi vengono inseriti nella fascia oraria richiesta.</div>
+  <div class="hint">Ferie, malattia e congedi sono giornalieri. Permessi e spostamenti possono essere a mezza giornata o a ore.</div>
 
   <div id="boxGiorno">
     <div class="riga">
@@ -193,6 +194,16 @@
         <label for="dataFine">Al giorno (incluso)</label>
         <input type="date" id="dataFine">
       </div>
+    </div>
+  </div>
+
+  <div id="boxMezza" style="display:none">
+    <label for="dataMezza">Giorno</label>
+    <input type="date" id="dataMezza">
+    <label style="margin-top:12px">Parte della giornata</label>
+    <div class="chips" id="chipsMezza">
+      <div class="chip on" data-val="mattina">🌅 Mattina</div>
+      <div class="chip" data-val="pomeriggio">🌇 Pomeriggio</div>
     </div>
   </div>
 
@@ -261,13 +272,13 @@ const SEDI = {
 /* ============================================================ */
 
 const $ = id => document.getElementById(id);
-const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", inseriti:[] };
+const stato = { operatore:"Fabrizio", tipo:"Ferie", modo:"giorno", mezza:"mattina", inseriti:[] };
 
 
 
 // data di oggi come default
 const oggi = new Date().toISOString().slice(0,10);
-["dataInizio","dataFine","dataOra"].forEach(id => $(id).value = oggi);
+["dataInizio","dataFine","dataOra","dataMezza"].forEach(id => $(id).value = oggi);
 
 // gestione chip generica
 function chipGroup(contenitore, onPick){
@@ -281,16 +292,17 @@ chipGroup("chipsOperatore", c => stato.operatore = c.dataset.val);
 chipGroup("chipsTipo", c => {
   stato.tipo = c.dataset.val;
   $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
-  $("boxSpostamento").style.display = (stato.tipo === "Spostamento") ? "" : "none";
   // il tipo suggerisce la durata, ma resta modificabile
   setModo(c.dataset.modo);
 });
 chipGroup("chipsModo", c => setModo(c.dataset.val));
+chipGroup("chipsMezza", c => { stato.mezza = c.dataset.val; aggiorna(); });
 
 function setModo(m){
   stato.modo = m;
   [...$("chipsModo").children].forEach(x => x.classList.toggle("on", x.dataset.val === m));
   $("boxGiorno").style.display = m === "giorno" ? "" : "none";
+  $("boxMezza").style.display  = m === "mezza"  ? "" : "none";
   $("boxOra").style.display    = m === "ora"    ? "" : "none";
 }
 
@@ -305,7 +317,7 @@ $("dipendente").addEventListener("change", () => {
   }
   aggiorna();
 });
-["dataInizio","dataFine","dataOra","oraInizio","oraFine","note","nomeManuale","sedeManuale","sedeDestinazione","motivoSpostamento"]
+["dataInizio","dataFine","dataOra","oraInizio","oraFine","dataMezza","note","nomeManuale","sedeManuale","sedeDestinazione","motivoSpostamento"]
   .forEach(id => $(id).addEventListener("input", aggiorna));
 
 $("dataInizio").addEventListener("change", () => {
@@ -319,28 +331,31 @@ function datiForm(){
   if(!nome) return null;
   const d = { nome, sede, tipo: stato.tipo, modo: stato.modo,
               note: $("note").value.trim(), operatore: stato.operatore };
+
   if (stato.tipo === "Spostamento") {
     d.destinazione = $("sedeDestinazione").value;
     d.motivo       = $("motivoSpostamento").value;
-    if (d.destinazione === sede) return null;
-    d.titolo = nome + " – " + sede + " \u2192 " + d.destinazione + " – " + d.motivo;
-  } else {
-    if (stato.tipo === "Spostamento") {
-    d.sedeDest = $("sedeDest").value;
-    d.motivo   = $("motivo").value;
-    if (d.sedeDest === sede) return null;      // provenienza e destinazione uguali
-    d.titolo = nome + " – " + sede + " → " + d.sedeDest +
+    if (d.destinazione === sede) return null;      // provenienza = destinazione
+    d.titolo = nome + " – " + sede + " \u2192 " + d.destinazione +
                (d.motivo ? " – " + d.motivo : "");
   } else {
     d.titolo = nome + " – " + sede + " – " + stato.tipo;
   }
-  }
+
   if (stato.modo === "giorno") {
     d.dataInizio = $("dataInizio").value;
     d.dataFine   = $("dataFine").value || $("dataInizio").value;
     if(!d.dataInizio) return null;
-    const g = Math.round((new Date(d.dataFine) - new Date(d.dataInizio))/86400000) + 1;
-    d.giorni = g;
+    d.giorni = Math.round((new Date(d.dataFine) - new Date(d.dataInizio))/86400000) + 1;
+
+  } else if (stato.modo === "mezza") {
+    d.data  = $("dataMezza").value;
+    d.mezza = stato.mezza;                          // "mattina" | "pomeriggio"
+    if(!d.data) return null;
+    // orari convenzionali per l'evento in calendario
+    if (d.mezza === "mattina") { d.oraInizio = "08:00"; d.oraFine = "12:30"; }
+    else                       { d.oraInizio = "14:00"; d.oraFine = "18:00"; }
+
   } else {
     d.data = $("dataOra").value;
     d.oraInizio = $("oraInizio").value;
@@ -375,6 +390,9 @@ function aggiorna(){
     quando = d.dataInizio === d.dataFine
       ? itDate(d.dataInizio) + " — tutto il giorno"
       : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) + " (" + d.giorni + " giorni)";
+  } else if (d.modo === "mezza") {
+    quando = itDate(d.data) + " — " +
+             (d.mezza === "mattina" ? "mattina (08:00–12:30)" : "pomeriggio (14:00–18:00)");
   } else {
     quando = itDate(d.data) + " — dalle " + d.oraInizio + " alle " + d.oraFine + " (" + d.ore + " ore)";
   }
@@ -428,6 +446,11 @@ function periodoTesto(d){
       : "dal " + itDate(d.dataInizio) + " al " + itDate(d.dataFine) +
         " (" + d.giorni + " giorni)";
   }
+  if (d.modo === "mezza"){
+    return "il " + itDate(d.data) + " " +
+           (d.mezza === "mattina" ? "in mattinata (08:00–12:30)"
+                                  : "nel pomeriggio (14:00–18:00)");
+  }
   return "il " + itDate(d.data) + " dalle " + d.oraInizio +
          " alle " + d.oraFine + " (" + d.ore + " ore)";
 }
@@ -436,7 +459,7 @@ function testoMessaggio(d){
   let t;
   if (d.tipo === "Spostamento"){
     t = "Comunico lo spostamento di " + d.nome + " da " + d.sede +
-        " a " + d.sedeDest + " " + periodoTesto(d) +
+        " a " + d.destinazione + " " + periodoTesto(d) +
         (d.motivo ? " per " + d.motivo.toLowerCase() : "") + ".";
   } else {
     t = "Autorizzo " + d.tipo.toLowerCase() + " per " + d.nome +
@@ -450,7 +473,7 @@ function testoMessaggio(d){
 
 function oggettoMail(d){
   return d.tipo === "Spostamento"
-    ? "Spostamento " + d.nome + " — " + d.sede + " → " + d.sedeDest
+    ? "Spostamento " + d.nome + " — " + d.sede + " → " + d.destinazione
     : "Autorizzazione " + d.tipo.toLowerCase() + " — " + d.nome;
 }
 
@@ -458,8 +481,8 @@ $("btnMail").addEventListener("click", () => {
   const d = datiForm(); if(!d) return;
   const a  = (SEDI[d.sede] || {}).mail || "";
   const cc = [];
-  if (d.tipo === "Spostamento" && (SEDI[d.sedeDest] || {}).mail)
-    cc.push(SEDI[d.sedeDest].mail);
+  if (d.tipo === "Spostamento" && (SEDI[d.destinazione] || {}).mail)
+    cc.push(SEDI[d.destinazione].mail);
   if ($("ccOfficina").checked && (SEDI[d.sede] || {}).officina)
     cc.push(SEDI[d.sede].officina);
   let url = "mailto:" + encodeURIComponent(a) +
